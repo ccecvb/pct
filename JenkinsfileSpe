@@ -1,0 +1,91 @@
+// Syntax check with this command line
+// curl -k -X POST -F "jenkinsfile=<Jenkinsfile" https://ci.rssw.eu/pipeline-model-converter/validate
+
+pipeline {
+  agent any
+  
+  options {
+    disableConcurrentBuilds()
+    buildDiscarder(logRotator(numToKeepStr: '5'))
+    skipDefaultCheckout()
+  }
+  
+  tools {
+    jdk "JDK 8"
+  }
+
+  stages {
+    stage('Build') {
+      steps {
+        script {
+        
+          checkout scm
+          def antCmd = 'ant '
+          def propsPCT
+          configFileProvider([configFile(fileId: 'pct-build-props', variable: 'PCT_PROPERTIES')]) {
+             propsPCT = readProperties(file: PCT_PROPERTIES) 
+          }
+          if (propsPCT['dlc10'] != '') antCmd += "-DDLC10=${propsPCT['dlc10']} "
+          if (propsPCT['dlc11'] != '') antCmd += "-DDLC11=${propsPCT['dlc11']} "
+          if (propsPCT['dlc12'] != '') antCmd += "-DDLC12=${propsPCT['dlc12']}] "
+          
+          bat 'git rev-parse HEAD > head-rev'
+          def commit = readFile('head-rev').trim()
+          antCmd += "-DGIT_COMMIT=${commit} "
+          
+          withAnt(installation: 'Ant 1.10.5') {
+
+            bat "${antCmd} clean classDoc dist"
+          }
+          stash name: 'tests', includes: 'dist/PCT.jar,dist/testcases.zip,tests.xml'
+          archiveArtifacts 'dist/PCT.jar'
+        }
+      }
+    }
+
+    stage('Unit tests') {
+      steps {
+        script {
+          def propsPCT
+          configFileProvider([configFile(fileId: 'pct-build-props', variable: 'PCT_PROPERTIES')]) {
+             propsPCT = readProperties(file: PCT_PROPERTIES) 
+          }
+          
+          if (propsPCT['dlc10'] != '') testBranch(propsPCT['dlc10'], 'OpenEdge-10.2B', true, '10.2B-Win')
+            
+          if (propsPCT['dlc11'] != '') testBranch(propsPCT['dlc11'], 'OpenEdge-11.7', true, '11.7-Win')
+          
+          if (propsPCT['dlc12'] != '') testBranch(propsPCT['dlc12'], 'OpenEdge-12', true, '12-Win')
+        }
+      }
+    }
+
+    stage('Unit tests reports') {
+      steps {
+
+        println "End"
+
+      }
+    }
+  }
+}
+
+def testBranch(dlc, dlcVersion, stashCoverage, label) {
+
+      deleteDir()
+      unstash name: 'tests'
+      withEnv(["PROMSGS=${dlc}\\prolang\\eng\\promsgs.eng", "ANT_OPTS=-Duser.language=en -Duser.country=US", "JAVA_TOOL_OPTIONS=-Duser.language=en -Duser.country=US"]) {
+          withAnt(installation: 'Ant 1.10.5') {
+            bat "ant -lib dist/PCT.jar -DDLC=${dlc} -DPROFILER=true -DTESTENV=${label} -f tests.xml init dist"
+          }
+      }
+      
+      archiveArtifacts "emailable-report-${label}.html"
+      
+      bat "mkdir junitreports"
+
+      unzip zipFile: "junitreports-${label}.zip", dir: 'junitreports'
+        
+      junit 'junitreports/**/*.xml'
+   
+}

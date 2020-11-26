@@ -74,6 +74,9 @@ public class CompilationAttributes implements ICompilationAttributes {
     private String callback = null;
     private String outputType = null;
 
+    private boolean pctRcode = false;
+
+
     // Internal use
     private final PCT parent;
 
@@ -290,6 +293,10 @@ public class CompilationAttributes implements ICompilationAttributes {
     public void setCallbackClass(String callback) {
         this.callback = callback;
     }
+        
+    public void setPctRcode(boolean pctRcode){
+        this.pctRcode = pctRcode;
+    }
 
     @Override
     public void setOutputType(String outputType) {
@@ -450,6 +457,10 @@ public class CompilationAttributes implements ICompilationAttributes {
 
     public String getCallbackClass() {
         return callback;
+    }
+    
+    public boolean isPctRcode(){
+        return pctRcode;
     }
 
     public List<String> getOutputType() {

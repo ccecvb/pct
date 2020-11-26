@@ -24,7 +24,12 @@
     Notes       :
   ----------------------------------------------------------------------*/
 
-BLOCK-LEVEL ON ERROR UNDO, THROW.
+/* Compatibilité V10 */
+&IF INTEGER(SUBSTRING(PROVERSION, 1, INDEX(PROVERSION, '.'))) GE 11 &THEN
+  BLOCK-LEVEL ON ERROR UNDO, THROW.
+&ELSEIF INTEGER(SUBSTRING(PROVERSION, 1, INDEX(PROVERSION, '.'))) GE 10 &THEN
+  ROUTINE-LEVEL ON ERROR UNDO, THROW.
+&ENDIF
 
 USING Progress.Json.ObjectModel.* FROM PROPATH .
 USING Progress.Lang.*             FROM PROPATH .

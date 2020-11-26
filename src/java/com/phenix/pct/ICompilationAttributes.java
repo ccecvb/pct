@@ -227,10 +227,17 @@ public interface ICompilationAttributes {
      */
     void setCallbackClass(String callback);
 
+
     /**
      * json value will display the errors and warnings in json format
      *
      * @param outputType String
      */
     void setOutputType(String outputType);
+
+    /*
+     * Check if existing RCode was build by PCT
+     */
+    void setPctRcode(boolean pctRcode);
+
 }

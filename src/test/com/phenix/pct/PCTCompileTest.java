@@ -1262,7 +1262,7 @@ public class PCTCompileTest extends BuildFileTestNg {
         }
     }
 
-    @Test(groups = {"v10"})
+    @Test(groups = {"v11"})
     public void test79() {
         // Only work with 11.7+
         try {
@@ -1398,6 +1398,29 @@ public class PCTCompileTest extends BuildFileTestNg {
             fail("Caught IOException", caught);
         }
     }
+    
+    @Test(groups = {"v10"})
+    public void test79specif() {
+        configureProject(BASEDIR + "test79specif/build.xml");
+    
+        List<String> rexp = new ArrayList<>();
+        rexp.add(".*");
+        rexp.add("PCTCompile - Progress Code Compiler");
+        rexp.add("1 file\\(s\\) compiled");
+        rexp.add("PCTCompile - Progress Code Compiler");
+        rexp.add("0 file\\(s\\) compiled");
+        expectLogRegexp("test1", rexp, false);
+        
+        rexp.clear();
+        rexp.add(".*");
+        rexp.add(".*");
+        rexp.add("PCTCompile - Progress Code Compiler");
+        rexp.add("1 file\\(s\\) compiled");
+        rexp.add(".*");
+        rexp.add("PCTCompile - Progress Code Compiler");
+        rexp.add("1 file\\(s\\) compiled");
+        expectLogRegexp("test2", rexp, false);
+    }
 
     @Test(groups = {"v12"})
     public void test80() {
@@ -1452,7 +1475,7 @@ public class PCTCompileTest extends BuildFileTestNg {
         expectBuildException("test", "Crashed process should lead to build failure");
     }
 
-    @Test(groups = {"v10"})
+    @Test(groups = {"v11"})
     public void test83() {
         // Only work with 11.7+
         try {

@@ -331,7 +331,8 @@ public class PCTCompileExtTest extends BuildFileTestNg {
         File f5 = new File(BASEDIR + "test22/build2/Y.r");
         assertTrue(f5.exists());
         File f6 = new File(BASEDIR + "test22/build2/X.r");
-        assertTrue(f6.exists());
+        /* Comment because compilation in tempdir avoid this 
+        assertTrue(f6.exists());*/
     }
 
     @Test(groups = {"v10", "win"})
@@ -1243,9 +1244,34 @@ public class PCTCompileExtTest extends BuildFileTestNg {
         }
     }
 
-    @Test(groups = {"v10"})
+    @Test(groups = {"v11"})
     public void test79() {
         // No test case as 'outputType' attribute is not implemented in PCTCompileExt
+    }
+    
+    @Test(groups = {"v10"})
+    public void test79specif() {
+        configureProject(BASEDIR + "test79specif/build.xml");
+
+        String vSuccesTxt = "1 file\\(s\\) compiled";
+        
+        List<String> rexp = new ArrayList<>();
+        rexp.add(".*");
+        rexp.add("PCTCompile - Progress Code Compiler");
+        rexp.add(vSuccesTxt);
+        rexp.add("PCTCompile - Progress Code Compiler");
+        rexp.add("0 file\\(s\\) compiled");
+        expectLogRegexp("test1", rexp, false);
+        
+        rexp.clear();
+        rexp.add(".*");
+        rexp.add(".*");
+        rexp.add("PCTCompile - Progress Code Compiler");
+        rexp.add(vSuccesTxt);
+        rexp.add(".*");
+        rexp.add("PCTCompile - Progress Code Compiler");
+        rexp.add(vSuccesTxt);
+        expectLogRegexp("test2", rexp, false);
     }
 
     @Test(groups = {"v12"})
@@ -1301,7 +1327,7 @@ public class PCTCompileExtTest extends BuildFileTestNg {
         expectBuildException("test", "Crashed process should lead to build failure");
     }
 
-    @Test(groups = {"v10"})
+    @Test(groups = {"v11"})
     public void test83() {
         // No test case as 'outputType' attribute is not implemented in PCTCompileExt
     }

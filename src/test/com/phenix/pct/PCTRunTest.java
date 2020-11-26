@@ -417,8 +417,9 @@ public class PCTRunTest extends BuildFileTestNg {
         assertEquals(f.listFiles().length, 1);
     }
 
-    @Test(groups = {"v10"})
+    @Test(groups = {"v11"})
     public void test50() {
+        // v1 because of usage of pctdynrun in the script
         configureProject("PCTRun/test50/build.xml");
         executeTarget("init");
 
